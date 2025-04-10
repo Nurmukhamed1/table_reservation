@@ -11,7 +11,7 @@ class TableReadSchema(BaseModel):
         orm_mode = True
 
 
-class TableCreateUpdateSchema(BaseModel):
+class TableSchema(BaseModel):
     name: str
     seats: int
     location: str

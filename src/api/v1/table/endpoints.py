@@ -8,7 +8,7 @@ from models import Table
 from .filters import TableFilter
 from configs import get_db
 from core.pagination import Page, paginate, PaginationParams
-from .schema import TableReadSchema, TableCreateUpdateSchema
+from .schema import TableReadSchema, TableSchema
 
 table_router = APIRouter()
 
@@ -23,8 +23,8 @@ class TableView:
         query = filters.apply_filters(query)
         return paginate(self.database, query, pagination)
 
-    @table_router.post("/", response_model=TableCreateUpdateSchema)
-    def create(self, data: TableCreateUpdateSchema):
+    @table_router.post("/", response_model=TableSchema)
+    def create(self, data: TableSchema):
         new_table = Table(**data.model_dump())
         self.database.add(new_table)
         try:
@@ -35,8 +35,8 @@ class TableView:
             raise HTTPException(status_code=400, detail=f"Table with {new_table.id} id already exists")
         return new_table
 
-    @table_router.put("/{table_id}", response_model=TableCreateUpdateSchema)
-    def update(self, table_id: int, data: TableCreateUpdateSchema):
+    @table_router.put("/{table_id}", response_model=TableSchema)
+    def update(self, table_id: int, data: TableSchema):
         table = self.database.get(Table, table_id)
         if not table:
             raise HTTPException(status_code=404)
@@ -46,4 +46,14 @@ class TableView:
 
         self.database.commit()
         self.database.refresh(table)
+        return table
+
+    @table_router.delete("/{table_id}", response_model=TableSchema)
+    def delete(self, table_id: int):
+        table = self.database.get(Table, table_id)
+        if not table:
+            raise HTTPException(status_code=404)
+
+        self.database.delete(table)
+        self.database.commit()
         return table
