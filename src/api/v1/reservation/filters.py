@@ -6,20 +6,16 @@ from models.reservation import Reservation
 
 class ReservationFilter:
     def __init__(
-        self,
-        ids: Optional[List[int]] = Query(None),
-        customer_name: Optional[str] = Query(None),
-        table_id: Optional[int] = Query(None)
+            self,
+            ids: Optional[List[int]] = Query(None),
+            table_id: Optional[int] = Query(None)
     ):
         self.ids = ids
-        self.customer_name = customer_name
         self.table_id = table_id
 
     def apply_filters(self, query: Select) -> Select:
         if self.ids:
             query = query.where(Reservation.id.in_(self.ids))
-        if self.customer_name:
-            query = query.where(Reservation.customer_name.ilike(f"%{self.customer_name}%"))
         if self.table_id:
             query = query.where(Reservation.table_id == self.table_id)
         return query

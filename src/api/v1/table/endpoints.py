@@ -39,7 +39,7 @@ class TableView:
     def update(self, table_id: int, data: TableSchema):
         table = self.database.get(Table, table_id)
         if not table:
-            raise HTTPException(status_code=404)
+            raise HTTPException(status_code=404, detail="Table not found")
 
         for key, value in data.model_dump().items():
             setattr(table, key, value)
@@ -52,7 +52,7 @@ class TableView:
     def delete(self, table_id: int):
         table = self.database.get(Table, table_id)
         if not table:
-            raise HTTPException(status_code=404)
+            raise HTTPException(status_code=404, detail="Table not found")
 
         self.database.delete(table)
         self.database.commit()

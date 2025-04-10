@@ -18,6 +18,6 @@ class Table(Base):
 
     @orm.validates("seats")
     def validate_seats(self, key, seats):
-        if not seats > 0:
+        if seats <= 0:
             raise HTTPException(status_code=400, detail="Seats must be greater than 0")
         return seats
