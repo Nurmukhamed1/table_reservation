@@ -6,6 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from configs import get_db
+from core.logger import logger
 from core.pagination import Page, paginate, PaginationParams
 from models import Table
 from models.reservation import Reservation
@@ -34,6 +35,7 @@ class ReservationView:
         self.database.add(reservation)
         self.database.commit()
         self.database.refresh(reservation)
+        logger.info(f"Reservation created: id={reservation.id}, table_id={reservation.table_id}")
         return reservation
 
     @reservation_router.delete("/{reservation_id}", response_model=ReservationSchema)
@@ -44,11 +46,13 @@ class ReservationView:
 
         self.database.delete(reservation)
         self.database.commit()
+        logger.info(f"Reservation {reservation_id} deleted")
         return reservation
 
     def check_table(self, table_id: int) -> None:
         table = self.database.get(Table, table_id)
         if not table:
+            logger.warning(f"Attempt to create reservation for non-existent table_id={table_id}")
             raise HTTPException(status_code=404, detail="Table not found")
 
     def check_reservation_time(self, data: ReservationSchema) -> None:
@@ -63,4 +67,5 @@ class ReservationView:
 
         reserved = self.database.execute(stmt).scalars().first()
         if reserved:
+            logger.info(f"Conflict reservation: table_id={data.table_id} reservation_time={reserved.reservation_time}")
             raise HTTPException(status_code=409, detail="The table is already reserved")
