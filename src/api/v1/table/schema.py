@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
 
-class TableSchema(BaseModel):
+class TableReadSchema(BaseModel):
     id: int
     name: str
     seats: int
@@ -9,3 +9,9 @@ class TableSchema(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class TableCreateUpdateSchema(BaseModel):
+    name: str
+    seats: int
+    location: str

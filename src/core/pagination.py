@@ -30,7 +30,7 @@ def paginate(
         db: Session,
         query: Select,
         params: PaginationParams
-):
+) -> Page:
     total = db.scalar(select(func.count()).select_from(query.subquery()))
     results = db.execute(query.offset((params.page - 1) * params.size).limit(params.size))
     items = results.scalars().all()

@@ -1,5 +1,7 @@
+from fastapi import HTTPException
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
+from sqlalchemy.util.preloaded import orm
 
 from src.configs import Base
 
@@ -13,3 +15,9 @@ class Table(Base):
     location = Column(String, nullable=False)
 
     reservations = relationship("Reservation", back_populates="table")
+
+    @orm.validates("seats")
+    def validate_seats(self, key, seats):
+        if not seats > 0:
+            raise HTTPException(status_code=400, detail="Seats must be greater than 0")
+        return seats
